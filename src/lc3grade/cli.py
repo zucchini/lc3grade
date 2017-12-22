@@ -1,4 +1,4 @@
-"""Command-line interface to Zucchini"""
+"""Command-line interface to lc3grade"""
 
 import argparse
 import subprocess
@@ -14,14 +14,14 @@ except ImportError:
 def main(argv, version=None):
     """Parse args, instantiate a Grader, and grade!"""
 
-    parser = argparse.ArgumentParser(prog='zucc',
+    parser = argparse.ArgumentParser(prog='lc3grade',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                      description='Grade homework submissions according to '
-                                                 'zucc.config. Run SubmissionFix.py first '
+                                                 'lc3grade.config. Run SubmissionFix.py first '
                                                  'please.')
     parser.add_argument('-V', '--version', action='version',
                         version='%(prog)s ' + (version or '(unknown version)'))
-    parser.add_argument('-c', '--config', metavar='CONFIG_PATH', default='zucc.config',
+    parser.add_argument('-c', '--config', metavar='CONFIG_PATH', default='lc3grade.config',
                         type=argparse.FileType('r'), help='path to config file')
     parser.add_argument('-d', '--submissions-dir', metavar='DIR_PATH', default='.',
                         help='path to submissions directory')

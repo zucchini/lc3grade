@@ -1,4 +1,4 @@
-"""Zucchini C (libcheck) backend"""
+"""lc3grade C (libcheck) backend"""
 
 import os
 import re
@@ -26,10 +26,10 @@ class CBackend(Backend):
         """
         Create a temporary directory inside the student directory and
         compile a student's code by running build_cmd from
-        zucc.config
+        lc3grade.config
         """
 
-        self.tmpdir = tempfile.mkdtemp(prefix='zucc-', dir=student_dir)
+        self.tmpdir = tempfile.mkdtemp(prefix='lc3grade-', dir=student_dir)
 
         for cfile in self.cfiles:
             try:

@@ -1,4 +1,4 @@
-"""Zucchini LC-3 (lc3test) Backend"""
+"""lc3grade LC-3 (lc3test) Backend"""
 
 import os
 import re

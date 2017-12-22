@@ -1,4 +1,4 @@
-"""Run the Zucchini command-line interface"""
+"""Run the lc3grade command-line interface"""
 
 import sys
 from .cli import main

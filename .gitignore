@@ -1,7 +1,7 @@
 *.o
 *.pyc
 # Python zip binaries
-zucc
+/lc3grade
 # Tester binaries
 tests
 # Student submission dirs for testing

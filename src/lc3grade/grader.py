@@ -1,4 +1,4 @@
-"""Zucchini grader logic"""
+"""lc3grade grader logic"""
 
 import os.path
 import threading
