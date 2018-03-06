@@ -221,6 +221,9 @@ class SetupError(Exception):
         self.output = output
         self.summary = summary
 
+    def __str__(self):
+        return '\n'.join([super().__str__(), self.summary, self.output.decode()])
+
 class TestError(Exception):
     """A fatal error in running a test XML"""
 

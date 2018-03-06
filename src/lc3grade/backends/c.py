@@ -14,7 +14,11 @@ class CBackend(Backend):
     def __init__(self, timeout, cfiles, tests_dir, build_cmd, run_cmd,
                  valgrind_cmd, testcase_fmt):
         self.timeout = float(timeout)
-        self.cfiles = cfiles.split()
+        self.cfiles = cfiles
+
+        if not isinstance(cfiles, tuple) and not isinstance(cfiles, list):
+            self.cfiles = self.cfiles.split()
+
         self.tests_dir = tests_dir
         self.build_cmd = build_cmd
         self.run_cmd = run_cmd
@@ -63,7 +67,8 @@ class CBackend(Backend):
         Delete temporary build/test directory created by student_setup()
         """
 
-        shutil.rmtree(self.tmpdir)
+        if self.tmpdir and os.path.isdir(self.tmpdir):
+            shutil.rmtree(self.tmpdir)
 
     def new_tests(self, tests, name, weight):
         """
@@ -71,7 +76,9 @@ class CBackend(Backend):
         created by student_setup()
         """
 
-        tests = tests.split(',')
+        if not isinstance(tests, tuple) and not isinstance(tests, list):
+            tests = tests.split(',')
+
         for test in tests:
             test_name = self.testcase_fmt.format(test=test, category=name)
             test_weight = Fraction(int(weight), len(tests))
