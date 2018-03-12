@@ -8,6 +8,12 @@ import tempfile
 from fractions import Fraction
 from ..grading import Backend, Test, StudentTestGrade, TestError, SetupError
 
+def copy(src, dest):
+    if os.path.isdir(src):
+        shutil.copytree(src, dest)
+    else:
+        shutil.copy2(src, dest)
+
 class CBackend(Backend):
     """Run tests through a libcheck C tester"""
 
@@ -41,13 +47,13 @@ class CBackend(Backend):
             except FileNotFoundError as err:
                 raise SetupError(str(err), None, 'no submission')
 
-            shutil.copy(cfile_path, os.path.join(self.tmpdir, cfile))
+            copy(cfile_path, os.path.join(self.tmpdir, cfile))
 
         for graderfile in os.listdir(self.tests_dir):
             dest_file = os.path.join(self.tmpdir, graderfile)
             # Don't clobber student's files
             if not os.path.exists(dest_file):
-                shutil.copy2(os.path.join(self.tests_dir, graderfile), dest_file)
+                copy(os.path.join(self.tests_dir, graderfile), dest_file)
 
         try:
             process = subprocess.run(self.build_cmd.split(), cwd=self.tmpdir,
