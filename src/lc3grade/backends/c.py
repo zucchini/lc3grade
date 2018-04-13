@@ -125,8 +125,8 @@ class CTest(Test):
         process = subprocess.run(self.run_cmd.format(test=self.testcase,
                                                      logfile=logfile_basename).split(),
                                  env={'CK_DEFAULT_TIMEOUT': str(self.timeout)},
-                                 cwd=self.get_tmpdir(), stdout=subprocess.DEVNULL,
-                                 stderr=subprocess.DEVNULL)
+                                 cwd=self.get_tmpdir(), stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT)
 
         if process.returncode != 0:
             raise TestError(self,
@@ -153,32 +153,34 @@ class CTest(Test):
         failed = int(match.group('errors')) + int(match.group('failures'))
         grade.set_percent_success(Fraction(total - failed, total))
 
-        grade.add_output(b'\nValgrind\n--------\n')
+        # If valgrind_cmd == '', don't run valgrind
+        if self.valgrind_cmd:
+            grade.add_output(b'\nValgrind\n--------\n')
 
-        if grade.failed():
-            valgrind_deduct = False
-            grade.add_output(b'failed this test, so skipping valgrind...\n')
-        else:
-            # When running valgrind, we need to set CK_FORK=no, else we're gonna
-            # get a ton of bogus reported memory leaks. However, CK_FORK=no will
-            # break libcheck timeouts, so make sure to handle timeouts here with
-            # subprocess
-            try:
-                valgrind_cmd = self.valgrind_cmd.format(test=self.testcase,
-                                                        logfile=logfile_basename).split()
-                valgrind_process = subprocess.run(valgrind_cmd,
-                                                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                                  env={'CK_FORK': 'no'}, cwd=self.get_tmpdir(),
-                                                  timeout=self.timeout)
-            except subprocess.TimeoutExpired:
-                grade.add_output(b'valgrind timed out, deducting full leak penalty...\n')
-                valgrind_deduct = True
+            if grade.failed():
+                valgrind_deduct = False
+                grade.add_output(b'failed this test, so skipping valgrind...\n')
             else:
-                grade.add_output(valgrind_process.stdout or b'(success)')
-                valgrind_deduct = valgrind_process.returncode != 0
+                # When running valgrind, we need to set CK_FORK=no, else we're gonna
+                # get a ton of bogus reported memory leaks. However, CK_FORK=no will
+                # break libcheck timeouts, so make sure to handle timeouts here with
+                # subprocess
+                try:
+                    valgrind_cmd = self.valgrind_cmd.format(test=self.testcase,
+                                                            logfile=logfile_basename).split()
+                    valgrind_process = subprocess.run(valgrind_cmd,
+                                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                                      env={'CK_FORK': 'no'}, cwd=self.get_tmpdir(),
+                                                      timeout=self.timeout)
+                except subprocess.TimeoutExpired:
+                    grade.add_output(b'valgrind timed out, deducting full leak penalty...\n')
+                    valgrind_deduct = True
+                else:
+                    grade.add_output(valgrind_process.stdout or b'(success)')
+                    valgrind_deduct = valgrind_process.returncode != 0
 
-        # Give no credit for tests failing valgrind
-        if valgrind_deduct:
-            grade.deduct('valgrind')
+            # Give no credit for tests failing valgrind
+            if valgrind_deduct:
+                grade.deduct('valgrind')
 
         return grade
